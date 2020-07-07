@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -71,7 +72,9 @@ public class LoginActivity extends AppCompatActivity {
             public void done(ParseException e) {
                 if (e != null){
                     //TODO: better error handling
-                    Toast.makeText(LoginActivity.this, "Issue w/ Signup!", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(LoginActivity.this, "Issue w/ Signup!", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+                    toast.show();
                     Log.e(TAG, "Issue with signup", e);
                     return;
                 }
@@ -87,9 +90,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void done(ParseUser user, ParseException e) {
                 if (e != null){
-                    //TODO: better error handling
-                    Toast.makeText(LoginActivity.this, "Issue w/ login!", Toast.LENGTH_SHORT).show();
-                    Log.e(TAG, "Issue with login", e);
+                    etUsername.setText("");
+                    etPassword.setText("");
+                    Toast toast = Toast.makeText(LoginActivity.this, "Issue w/ login! Please try again", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.HORIZONTAL_GRAVITY_MASK|Gravity.CENTER_HORIZONTAL, 0, 0);
+                    toast.show();
+                    //Log.e(TAG, "Issue with login", e);
                     return;
                 }
                 // navigate to main activity if login successful
