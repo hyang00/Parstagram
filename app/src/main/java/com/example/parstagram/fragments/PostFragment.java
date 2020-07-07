@@ -1,5 +1,6 @@
 package com.example.parstagram.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -128,7 +129,7 @@ public class PostFragment extends Fragment {
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
         query.setLimit(20);
-        query.addDescendingOrder(Post.KEY_CEATED_KEY);
+        query.addDescendingOrder(Post.KEY_CREATED_KEY);
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(List<Post> posts, ParseException e) {
@@ -138,6 +139,7 @@ public class PostFragment extends Fragment {
                 for (Post post : posts) {
                     Log.i(TAG, "Post: " + post.getDescription());
                 }
+                adapter.clear();
                 adapter.addAll(posts);
                 adapter.notifyDataSetChanged();
                 swipeContainer.setRefreshing(false);
