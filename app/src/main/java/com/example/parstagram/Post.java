@@ -38,8 +38,9 @@ public class Post extends ParseObject {
         put(KEY_USER, user);
     }
 
-    public Date getCreatedAt(){
-        return getDate(KEY_CREATED_KEY);
-    }
+//    public Date getCreatedAt2(){
+//        return getCreatedAt();
+//        //return getDate(KEY_CREATED_KEY);
+//    }
     //TODO: create getter/setters for createdAt
 }

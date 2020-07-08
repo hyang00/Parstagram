@@ -19,6 +19,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private ImageView ivImage;
     private TextView tvDescription;
     private ImageView ivProfilePic;
+    private TextView tvDate;
     private Post post;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         tvUsername.setText(post.getUser().getUsername());
         tvDescription.setText(post.getDescription());
+        tvDate.setText(post.getCreatedAt().toString());
         ParseFile image = post.getImage();
         if(image != null){
             Glide.with(PostDetailActivity.this).load(image.getUrl()).into(ivImage);
