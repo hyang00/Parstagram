@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.parstagram.EndlessRecyclerViewScrollListener;
 import com.example.parstagram.Post;
 import com.example.parstagram.PostsAdapter;
 import com.example.parstagram.R;
@@ -37,7 +38,8 @@ public class PostFragment extends Fragment {
     private RecyclerView rvPosts;
     protected PostsAdapter adapter;
     protected List<Post> allPosts;
-    private SwipeRefreshLayout swipeContainer;
+    protected SwipeRefreshLayout swipeContainer;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -90,7 +92,7 @@ public class PostFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvPosts = view.findViewById(R.id.rvPosts);
-
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         // create the data source
         allPosts = new ArrayList<>();
         // create the adapter
@@ -118,9 +120,39 @@ public class PostFragment extends Fragment {
         // set the adapter on the recycler view
         rvPosts.setAdapter(adapter);
         // set the layout manager on the recycler view
-        rvPosts.setLayoutManager(new LinearLayoutManager(getContext()));
-
+        rvPosts.setLayoutManager(linearLayoutManager);
+        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                loadNextDataFromApi(page, totalItemsCount);
+            }
+        };
+        rvPosts.addOnScrollListener(scrollListener);
         queryPosts();
+    }
+
+    private void loadNextDataFromApi(int page, final int totalItemsCount) {
+        ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
+        // also want the user info associated w/ the post
+        query.include(Post.KEY_USER);
+        Log.i(TAG, "totalItemsCount: " + totalItemsCount);
+        query.setSkip(totalItemsCount);
+        query.setLimit(20);
+        query.addDescendingOrder(Post.KEY_CREATED_KEY);
+        query.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(List<Post> posts, ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Issue w/ getting posts", e);
+                }
+                for (Post post : posts) {
+                    Log.i(TAG, "Post: " + post.getDescription());
+                }
+                adapter.addAll(totalItemsCount, posts);
+                adapter.notifyDataSetChanged();
+            }
+        });
+
     }
 
     protected void queryPosts() {
