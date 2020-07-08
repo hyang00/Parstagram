@@ -71,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         user.signUpInBackground(new SignUpCallback() {
             public void done(ParseException e) {
                 if (e != null){
-                    //TODO: better error handling
+                    //TODO: better error handling/ if two usernames are the same?
                     Toast toast = Toast.makeText(LoginActivity.this, "Issue w/ Signup!", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
                     toast.show();

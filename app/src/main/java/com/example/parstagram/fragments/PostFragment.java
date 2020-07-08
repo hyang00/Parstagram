@@ -131,7 +131,7 @@ public class PostFragment extends Fragment {
         queryPosts();
     }
 
-    private void loadNextDataFromApi(int page, final int totalItemsCount) {
+    protected void loadNextDataFromApi(int page, final int totalItemsCount) {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
