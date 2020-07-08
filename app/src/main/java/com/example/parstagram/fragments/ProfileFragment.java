@@ -18,8 +18,6 @@ public class ProfileFragment extends PostFragment {
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
         query.whereEqualTo(Post.KEY_USER, ParseUser.getCurrentUser());
-        // also want the user info associated w/ the post
-        query.include(Post.KEY_USER);
         Log.i(TAG, "totalItemsCount: " + totalItemsCount);
         query.setSkip(totalItemsCount);
         query.setLimit(20);

@@ -29,10 +29,13 @@ public class PostDetailActivity extends AppCompatActivity {
         ivImage = findViewById(R.id.ivImage);
         tvDescription = findViewById(R.id.tvDescription);
         ivProfilePic = findViewById(R.id.ivProfilePic);
+        tvDate = findViewById(R.id.tvDate);
         post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
 
         tvUsername.setText(post.getUser().getUsername());
-        tvDescription.setText(post.getDescription());
+        String descriptionString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
+        tvDescription.setText(Html.fromHtml(descriptionString));
+        //tvDescription.setText(post.getDescription());
         tvDate.setText(post.getCreatedAt().toString());
         ParseFile image = post.getImage();
         if(image != null){
