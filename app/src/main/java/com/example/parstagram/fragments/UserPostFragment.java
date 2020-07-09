@@ -1,6 +1,5 @@
 package com.example.parstagram.fragments;
 
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +19,7 @@ import com.example.parstagram.EndlessRecyclerViewScrollListener;
 import com.example.parstagram.Post;
 import com.example.parstagram.PostsAdapter;
 import com.example.parstagram.R;
+import com.example.parstagram.UserPostsAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -29,15 +29,15 @@ import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link PostFragment#newInstance} factory method to
+ * Use the {@link UserPostFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class PostFragment extends Fragment {
+public class UserPostFragment extends Fragment {
 
-    public static final String TAG = "Post Fragment";
+    public static final String TAG = "UserPost Fragment";
 
     private RecyclerView rvPosts;
-    protected PostsAdapter adapter;
+    protected UserPostsAdapter adapter;
     protected List<Post> allPosts;
     protected SwipeRefreshLayout swipeContainer;
     private EndlessRecyclerViewScrollListener scrollListener;
@@ -51,7 +51,7 @@ public class PostFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    public PostFragment() {
+    public UserPostFragment() {
         // Required empty public constructor
     }
 
@@ -61,11 +61,11 @@ public class PostFragment extends Fragment {
      *
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
-     * @return A new instance of fragment PostFragment.
+     * @return A new instance of fragment UserPostFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static PostFragment newInstance(String param1, String param2) {
-        PostFragment fragment = new PostFragment();
+    public static UserPostFragment newInstance(String param1, String param2) {
+        UserPostFragment fragment = new UserPostFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -86,19 +86,19 @@ public class PostFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_post, container, false);
+        return inflater.inflate(R.layout.fragment_user_post, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvPosts = view.findViewById(R.id.rvPosts);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        //GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 3 );
+        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 3 );
         // create the data source
         allPosts = new ArrayList<>();
         // create the adapter
-        adapter = new PostsAdapter(getContext(), allPosts);
+        adapter = new UserPostsAdapter(getContext(), allPosts);
 
         // Lookup the swipe container view
         swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);

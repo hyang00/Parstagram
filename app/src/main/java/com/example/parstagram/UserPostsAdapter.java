@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.parceler.Parcels;
@@ -18,18 +17,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 import com.parse.ParseFile;
 
 import java.util.List;
 
-public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> {
+public class UserPostsAdapter extends RecyclerView.Adapter<UserPostsAdapter.ViewHolder> {
 
     private Context context;
     private List<Post> posts;
 
-    public PostsAdapter(Context context, List<Post> posts) {
+    public UserPostsAdapter(Context context, List<Post> posts) {
         this.context = context;
         this.posts = posts;
     }
@@ -37,7 +34,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_post, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_photo, parent, false);
         return new ViewHolder(view);
     }
 
@@ -73,59 +70,20 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
 
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        private TextView tvUsername;
-        private ImageView ivImage;
-        private TextView tvDescription;
-        private TextView tvDate;
-        private ImageView ivProfilePic;
-        private RelativeLayout rlPostProfile;
+        private ImageView ivPhoto;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvUsername = itemView.findViewById(R.id.tvUsername);
-            ivImage = itemView.findViewById(R.id.ivImage);
-            tvDescription = itemView.findViewById(R.id.tvDescription);
-            ivProfilePic = itemView.findViewById(R.id.ivProfilePic);
-            tvDate = itemView.findViewById(R.id.tvDate);
-            rlPostProfile = itemView.findViewById(R.id.rlPostProfile);
+            ivPhoto = itemView.findViewById(R.id.ivPhoto);
             itemView.setOnClickListener(this);
 
         }
 
         public void bind(Post post) {
-            // bind the post data to the view elements
-            tvUsername.setText(post.getUser().getUsername());
-            String descriptionString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
-            tvDescription.setText(Html.fromHtml(descriptionString));
-            //Log.i("Posts Adapter", post.getDescription() + post.getCreatedAt());
-            tvDate.setText(post.getCreatedAt().toString());
             ParseFile image = post.getImage();
             if(image != null){
-                Glide.with(context).load(image.getUrl()).into(ivImage);
+                Glide.with(context).load(image.getUrl()).into(ivPhoto);
             }
-            ParseFile imageProfile = post.getUser().getParseFile("profileImage");
-            if(imageProfile != null){
-                Glide.with(context).load(imageProfile.getUrl()).transform(new CircleCrop()).into(ivProfilePic);
-            }
-            rlPostProfile.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int position = getAdapterPosition();
-                    //Log.i("myApp", "on click");
-                    // make sure the position is valid, i.e. actually exists in the view
-                    if (position != RecyclerView.NO_POSITION) {
-                        // get the movie at the position, this won't work if the class is static
-                        Post post = posts.get(position);
-                        // create intent for the new activity
-                        Intent intent = new Intent(context, UserPostActivity.class);
-                        // serialize the movie using parceler, use its short name as a key
-                        intent.putExtra(Post.class.getSimpleName(), Parcels.wrap(post));
-                        ///intent.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
-                        // show the activity
-                        context.startActivity(intent);
-                    }
-                }
-            });
         }
 
         @Override
