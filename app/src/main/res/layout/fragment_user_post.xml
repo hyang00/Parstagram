@@ -6,8 +6,16 @@
     android:layout_height="match_parent"
     tools:context=".fragments.UserPostFragment">
 
+    <!-- Load the toolbar here -->
+    <include
+        layout="@layout/toolbar_user_profile"
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <ImageView
         android:id="@+id/ivProfile"
+        android:layout_below="@+id/toolBar"
         android:layout_width="100dp"
         android:layout_height="100dp"
         app:srcCompat="@drawable/instagram_user_filled_24"
@@ -27,9 +35,9 @@
         android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_alignTop="@+id/ivProfile"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="0dp"
         android:layout_toEndOf="@+id/ivProfile"
         android:textColor="@color/black"
         android:textSize="18sp"

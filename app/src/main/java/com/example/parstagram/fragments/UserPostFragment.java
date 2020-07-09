@@ -1,34 +1,44 @@
 package com.example.parstagram.fragments;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+//import androidx.appcompat.widget.Toolbar;
+import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.parstagram.EndlessRecyclerViewScrollListener;
+import com.example.parstagram.LoginActivity;
 import com.example.parstagram.Post;
-import com.example.parstagram.PostsAdapter;
 import com.example.parstagram.R;
+import com.example.parstagram.UserPostActivity;
 import com.example.parstagram.UserPostsAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +60,7 @@ public class UserPostFragment extends Fragment {
     private TextView tvName;
     private TextView tvBio;
     private ImageView ivProfile;
-
+    private Toolbar toolbar;
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "user";
@@ -107,6 +117,25 @@ public class UserPostFragment extends Fragment {
         if(imageProfile != null){
             Glide.with(getContext()).load(imageProfile.getUrl()).transform(new CircleCrop()).into(ivProfile);
         }
+        toolbar = (Toolbar) view.findViewById(R.id.toolBar);
+        toolbar.inflateMenu(R.menu.menu_user_profile);
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem menuItem) {
+                switch (menuItem.getItemId()) {
+                    case R.id.miLogout:
+                        ParseUser.logOut();
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        Intent intent = new Intent(getContext(), LoginActivity.class);
+                        getContext().startActivity(intent);
+                        break;
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+        //((AppCompatActivity) getActivity()).setActionBar(toolbar);
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 3 );
         // create the data source
@@ -170,6 +199,11 @@ public class UserPostFragment extends Fragment {
         });
 
     }
+
+//    @Override
+//    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+//        inflater.
+//    }
 
     protected void queryPosts() {
         // Specify which class to query
