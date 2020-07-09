@@ -24,7 +24,7 @@
         tools:srcCompat="@tools:sample/avatars" />
 
     <EditText
-        android:id="@+id/editTextTextPersonName"
+        android:id="@+id/etComment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignTop="@+id/ivUserProfilePic"
@@ -36,16 +36,17 @@
         android:inputType="textPersonName" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvComments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/editTextTextPersonName"
+        android:layout_below="@+id/etComment"
         android:layout_marginTop="0dp" />
 
     <ImageView
         android:id="@+id/ivSend"
         android:layout_width="35dp"
         android:layout_height="35dp"
-        android:layout_alignTop="@+id/editTextTextPersonName"
+        android:layout_alignTop="@+id/etComment"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="0dp"
         android:layout_marginEnd="4dp"

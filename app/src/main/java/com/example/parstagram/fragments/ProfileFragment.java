@@ -2,7 +2,7 @@ package com.example.parstagram.fragments;
 
 import android.util.Log;
 
-import com.example.parstagram.Post;
+import com.example.parstagram.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
