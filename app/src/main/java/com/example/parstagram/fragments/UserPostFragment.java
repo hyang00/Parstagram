@@ -180,6 +180,7 @@ public class UserPostFragment extends Fragment {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
+        query.whereEqualTo(Post.KEY_USER, user);
         Log.i(TAG, "totalItemsCount: " + totalItemsCount);
         query.setSkip(totalItemsCount);
         query.setLimit(20);
@@ -210,6 +211,7 @@ public class UserPostFragment extends Fragment {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
+        query.whereEqualTo(Post.KEY_USER, user);
         query.setLimit(20);
         query.addDescendingOrder(Post.KEY_CREATED_KEY);
         query.findInBackground(new FindCallback<Post>() {

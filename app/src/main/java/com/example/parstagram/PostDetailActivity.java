@@ -10,6 +10,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import org.parceler.Parcels;
 
@@ -20,6 +21,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private TextView tvDescription;
     private ImageView ivProfilePic;
     private TextView tvDate;
+    private ImageView ivUserProfilePic;
     private Post post;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +32,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tvDescription);
         ivProfilePic = findViewById(R.id.ivProfilePic);
         tvDate = findViewById(R.id.tvDate);
+        ivUserProfilePic = findViewById(R.id.ivUserProfilePic);
         post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
 
         tvUsername.setText(post.getUser().getUsername());
@@ -44,6 +47,10 @@ public class PostDetailActivity extends AppCompatActivity {
         ParseFile imageProfile = post.getUser().getParseFile("profileImage");
         if(imageProfile != null){
             Glide.with(PostDetailActivity.this).load(imageProfile.getUrl()).transform(new CircleCrop()).into(ivProfilePic);
+        }
+        ParseFile imageUserProfile = ParseUser.getCurrentUser().getParseFile("profileImage");
+        if(imageUserProfile != null){
+            Glide.with(PostDetailActivity.this).load(imageUserProfile.getUrl()).transform(new CircleCrop()).into(ivUserProfilePic);
         }
     }
 }

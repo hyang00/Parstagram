@@ -13,4 +13,42 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content" />
 
+    <ImageView
+        android:id="@+id/ivUserProfilePic"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_below="@+id/header_VIEW"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="0dp"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <EditText
+        android:id="@+id/editTextTextPersonName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/ivUserProfilePic"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:layout_toEndOf="@+id/ivUserProfilePic"
+        android:ems="10"
+        android:hint="Add a comment..."
+        android:inputType="textPersonName" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/editTextTextPersonName"
+        android:layout_marginTop="0dp" />
+
+    <ImageView
+        android:id="@+id/ivSend"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignTop="@+id/editTextTextPersonName"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="4dp"
+        app:srcCompat="@drawable/ufi_new_direct" />
+
 </RelativeLayout>
