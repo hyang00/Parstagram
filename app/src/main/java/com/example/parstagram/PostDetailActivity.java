@@ -19,7 +19,10 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.parstagram.adapters.CommentsAdapter;
 import com.example.parstagram.adapters.PostsAdapter;
 import com.example.parstagram.models.Comment;
+import com.example.parstagram.models.Like;
 import com.example.parstagram.models.Post;
+import com.parse.CountCallback;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
@@ -45,6 +48,8 @@ public class PostDetailActivity extends AppCompatActivity {
     private ImageView ivUserProfilePic;
     private ImageView ivSend;
     private EditText etComment;
+    private ImageView ivLike;
+    private TextView tvLikeCount;
     private RecyclerView rvComments;
     protected CommentsAdapter adapter;
     protected List<Comment> allComments;
@@ -53,6 +58,9 @@ public class PostDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post_detail);
+
+        post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
+
         tvUsername = findViewById(R.id.tvUsername);
         ivImage = findViewById(R.id.ivImage);
         tvDescription = findViewById(R.id.tvDescription);
@@ -62,12 +70,17 @@ public class PostDetailActivity extends AppCompatActivity {
         ivSend = findViewById(R.id.ivSend);
         etComment = findViewById(R.id.etComment);
         rvComments = findViewById(R.id.rvComments);
+        ivLike = findViewById(R.id.ivLike);
+        tvLikeCount = findViewById(R.id.tvLikeCount);
+        getIsLiked();
+        getLikeCount();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         allComments = new ArrayList<>();
         adapter = new CommentsAdapter(this, allComments);
         rvComments.setAdapter(adapter);
         rvComments.setLayoutManager(linearLayoutManager);
-        post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
+        //tvLikeCount.setText(Integer.toString(getLikeCount()));
+
 
         tvUsername.setText(post.getUser().getUsername());
         String descriptionString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
@@ -94,10 +107,105 @@ public class PostDetailActivity extends AppCompatActivity {
                 postComment(description);
             }
         });
+        ivLike.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ivLike.isSelected()){
+                    removeLike();
+                }else{
+                    addLike();
+                }
+            }
+        });
+
 
         queryComments();
     }
 
+    private void removeLike() {
+        // Specify which class to query
+        ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
+        query.whereEqualTo(Like.KEY_POST, post);
+        query.whereEqualTo(Like.KEY_USER, ParseUser.getCurrentUser());
+        Log.i(TAG, "currUser: " + ParseUser.getCurrentUser().getUsername());
+        query.findInBackground(new FindCallback<Like>() {
+            @Override
+            public void done(List<Like> objects, ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Error while unliking", e);
+                    Toast.makeText(PostDetailActivity.this, "Error while unliking", Toast.LENGTH_SHORT).show();
+                }
+                objects.get(0).deleteInBackground(new DeleteCallback() {
+                    @Override
+                    public void done(ParseException e) {
+                        if(e != null){
+                            Log.e(TAG, "Error while unliking", e);
+                            Toast.makeText(PostDetailActivity.this, "Error while unliking", Toast.LENGTH_SHORT).show();
+                        }
+                        ivLike.setSelected(false);
+                        getLikeCount();
+                    }
+                });
+
+            }
+        });
+    }
+    private void addLike(){
+        Like like = new Like();
+        like.setPost(post);
+        like.setUser(ParseUser.getCurrentUser());
+        like.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Error while liking", e);
+                    Toast.makeText(PostDetailActivity.this, "Error while liking", Toast.LENGTH_SHORT).show();
+                }
+                ivLike.setSelected(true);
+                getLikeCount();
+            }
+        });
+
+    }
+
+    private void getIsLiked(){
+        // Specify which class to query
+        ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
+        query.whereEqualTo(Like.KEY_POST, post);
+        query.whereEqualTo(Like.KEY_USER, ParseUser.getCurrentUser());
+        Log.i(TAG, "currUser: " + ParseUser.getCurrentUser().getUsername());
+        query.countInBackground(new CountCallback() {
+            @Override
+            public void done(int count, ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Issue w/ getting is Liked", e);
+                }
+                Log.i(TAG, "isLiked: " + count);
+                if (count == 1){
+                    ivLike.setSelected(true);
+                } else{
+                    ivLike.setSelected(false);
+                }
+            }
+        });
+
+    }
+
+    private void getLikeCount(){
+        // Specify which class to query
+        ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
+        query.whereEqualTo(Like.KEY_POST, post);
+        query.countInBackground(new CountCallback() {
+            @Override
+            public void done(int count, ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Issue w/ getting likeCount", e);
+                }
+                Log.i(TAG, "Count: " + count);
+                tvLikeCount.setText(Integer.toString(count));
+            }
+        });
+    }
     private void queryComments() {
         // Specify which class to query
         ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
@@ -137,7 +245,6 @@ public class PostDetailActivity extends AppCompatActivity {
                     Toast.makeText(PostDetailActivity.this, "Error while posting comment", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "Posting comment");
-
                 // clear out editText and imageView after posting
                 etComment.setText("");
                 // closes keyboard when send clicked
