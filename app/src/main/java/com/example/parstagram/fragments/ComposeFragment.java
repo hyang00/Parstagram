@@ -20,6 +20,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.parstagram.models.Post;
@@ -49,6 +50,7 @@ public class  ComposeFragment extends Fragment {
     private Button btnSubmit;
     private File photoFile;
     private String photoFileName = "photo.jpg";
+    private ProgressBar pb;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -107,6 +109,7 @@ public class  ComposeFragment extends Fragment {
         btnCaptureImage = view.findViewById(R.id.btnCaptureImage);
         ivPostImage = view.findViewById(R.id.ivPostImage);
         btnSubmit = view.findViewById(R.id.btnSubmit);
+        pb = view.findViewById(R.id.pbLoading);
 
         btnCaptureImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,7 +193,9 @@ public class  ComposeFragment extends Fragment {
         post.setDescription(description);
         post.setImage(new ParseFile(photoFile));
         post.setUser(currentUser);
+        pb.setVisibility(ProgressBar.VISIBLE);
         post.saveInBackground(new SaveCallback() {
+            // on some click or some loading we need to wait for...
             @Override
             public void done(ParseException e) {
                 if(e != null){
@@ -198,7 +203,7 @@ public class  ComposeFragment extends Fragment {
                     Toast.makeText(getContext(), "Error while saving", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "Post save was successful");
-
+                pb.setVisibility(ProgressBar.INVISIBLE);
                 // clear out editText and imageView after posting
                 etDescription.setText("");
                 ivPostImage.setImageResource(0);
