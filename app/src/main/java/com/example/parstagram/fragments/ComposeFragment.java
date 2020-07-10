@@ -113,6 +113,7 @@ public class  ComposeFragment extends Fragment {
             }
         });
     }
+
     // Trigger gallery selection for a photo
     private void pickPhoto(View view) {
         // Create intent for picking a photo from the gallery
@@ -171,10 +172,6 @@ public class  ComposeFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 // by this point we have the camera photo on disk
                 Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-
-                // TODO: RESIZE BITMAP, see section below
-                //Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 300);
-                //photoFile = getResizedPhoto();
                 // Load the taken image into a preview
                 ivPostImage.setImageBitmap(takenImage);
             } else { // Result was a failure
@@ -189,39 +186,8 @@ public class  ComposeFragment extends Fragment {
             // Load the selected image into a preview
             ivPostImage.setImageBitmap(selectedImage);
             //getResizedPhoto();
-            photoFile = new File(photoUri.getPath());
+            photoFile = new File(photoUri.getPath());  // TODO: Getting image from gallery view does not work
         }
-    }
-
-    private void getResizedPhoto(){
-        // by this point we have the camera photo on disk
-        Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-        // RESIZE BITMAP, see section below
-        Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
-        // Load the taken image into a preview
-        //ivProfile.setImageBitmap(takenImage);
-        // Configure byte output stream
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-        // Compress the image further
-        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 200, bytes);
-        // Create a new file for the resized bitmap (`getPhotoFileUri` defined above)
-        final File resizedFile = getPhotoFileUri(photoFileName + "_resized");
-        FileOutputStream fos = null;
-        try {
-            fos = new FileOutputStream(resizedFile);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-        // Write the bytes of the bitmap to file
-        try {
-            resizedFile.createNewFile();
-            fos = new FileOutputStream(resizedFile);
-            fos.write(bytes.toByteArray());
-            fos.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        photoFile = resizedFile;
     }
 
     //returns the file for a photo stored on disk given the fileName
@@ -243,37 +209,6 @@ public class  ComposeFragment extends Fragment {
     private void savePost(String description, final ParseUser currentUser, final File photoFile) {
         final Post post = new Post();
         post.setDescription(description);
-//        ParseFile myFile = new ParseFile(photoFile);
-//        myFile.saveInBackground(new SaveCallback() {
-//            @Override
-//            public void done(ParseException e) {
-//                if (e != null) {
-//                    Log.e(TAG, "Error while saving file", e);
-//                    Toast.makeText(getContext(), "Error while saving file", Toast.LENGTH_SHORT).show();
-//                }
-//                if(null == e) {
-//                    post.setImage(new ParseFile(photoFile));
-//                    post.setUser(currentUser);
-//                    pb.setVisibility(ProgressBar.VISIBLE);
-//                    post.saveInBackground(new SaveCallback() {
-//                        // on some click or some loading we need to wait for...
-//                        @Override
-//                        public void done(ParseException e) {
-//                            if (e != null) {
-//                                Log.e(TAG, "Error while saving", e);
-//                                Toast.makeText(getContext(), "Error while saving", Toast.LENGTH_SHORT).show();
-//                            }
-//                            Log.i(TAG, "Post save was successful");
-//                            pb.setVisibility(ProgressBar.INVISIBLE);
-//                            // clear out editText and imageView after posting
-//                            etDescription.setText("");
-//                            ivPostImage.setImageResource(0);
-//                        }
-//                    });
-//                }
-//                Log.i(TAG, "here");
-//            }
-//        });
         post.setImage(new ParseFile(photoFile));
         post.setUser(currentUser);
         pb.setVisibility(ProgressBar.VISIBLE);

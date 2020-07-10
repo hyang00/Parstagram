@@ -24,7 +24,7 @@ import java.util.List;
 
 public class UserPostActivity extends AppCompatActivity {
 
-    public static final String TAG = "UserPost Fragment";
+    public static final String TAG = "UserPostActivity";
 
     final FragmentManager fragmentManager = getSupportFragmentManager();
 
@@ -35,6 +35,7 @@ public class UserPostActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_post);
         post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
+        // false b/c don't want to inflate menu b/c launched from feed not currUsers profile tab
         Fragment fragment = UserPostFragment.newInstance(post.getUser(), false);
         fragmentManager.beginTransaction().replace(R.id.rlUserPost, fragment).commit();
     }

@@ -72,15 +72,15 @@ public class PostDetailActivity extends AppCompatActivity {
         rvComments = findViewById(R.id.rvComments);
         ivLike = findViewById(R.id.ivLike);
         tvLikeCount = findViewById(R.id.tvLikeCount);
+
         getIsLiked();
         getLikeCount();
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         allComments = new ArrayList<>();
         adapter = new CommentsAdapter(this, allComments);
         rvComments.setAdapter(adapter);
         rvComments.setLayoutManager(linearLayoutManager);
-        //tvLikeCount.setText(Integer.toString(getLikeCount()));
-
 
         tvUsername.setText(post.getUser().getUsername());
         String descriptionString = "<b>" + post.getUser().getUsername() + "</b> " + post.getDescription();
@@ -99,6 +99,7 @@ public class PostDetailActivity extends AppCompatActivity {
         if(imageUserProfile != null){
             Glide.with(PostDetailActivity.this).load(imageUserProfile.getUrl()).transform(new CircleCrop()).into(ivUserProfilePic);
         }
+
         ivSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,12 +119,11 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
 
-
         queryComments();
     }
 
+    // remove like object from Parse, update like icon, update like count
     private void removeLike() {
-        // Specify which class to query
         ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
         query.whereEqualTo(Like.KEY_POST, post);
         query.whereEqualTo(Like.KEY_USER, ParseUser.getCurrentUser());
@@ -150,6 +150,8 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Add like object to Parse, update like icon, update like count
     private void addLike(){
         Like like = new Like();
         like.setPost(post);
@@ -168,6 +170,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     }
 
+    // check to see whether the current user has liked the current post
     private void getIsLiked(){
         // Specify which class to query
         ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
@@ -191,6 +194,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     }
 
+    // check to see how many likes there are on the current post
     private void getLikeCount(){
         // Specify which class to query
         ParseQuery<Like> query = ParseQuery.getQuery(Like.class);
@@ -206,6 +210,8 @@ public class PostDetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    // Get all the comments associated w/ current post and show in a recyclerView
     private void queryComments() {
         // Specify which class to query
         ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
@@ -232,6 +238,7 @@ public class PostDetailActivity extends AppCompatActivity {
         });
     }
 
+    // upload a new comment to Parse and immediately show at the top of the recycler view
     private void postComment(String description) {
         final Comment comment= new Comment();
         comment.setDescription(description);

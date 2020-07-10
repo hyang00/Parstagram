@@ -46,11 +46,9 @@ public class PostFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         rvPosts = view.findViewById(R.id.rvPosts);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        //GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 3 );
-        // create the data source
         allPosts = new ArrayList<>();
-        // create the adapter
         adapter = new PostsAdapter(getContext(), allPosts);
 
         // Lookup the swipe container view
@@ -59,10 +57,6 @@ public class PostFragment extends Fragment {
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                // Your code to refresh the list here.
-                // Make sure you call swipeContainer.setRefreshing(false)
-                // once the network request has completed successfully.
-                //Todo: check if this is correct
                 queryPosts();
             }
         });
@@ -85,7 +79,7 @@ public class PostFragment extends Fragment {
         rvPosts.addOnScrollListener(scrollListener);
         queryPosts();
     }
-
+    // query next 20 posts when at the bottom of currently fetched posts
     protected void loadNextDataFromApi(int page, final int totalItemsCount) {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post
@@ -110,6 +104,7 @@ public class PostFragment extends Fragment {
 
     }
 
+    // Get the 20 most recent posts
     protected void queryPosts() {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);

@@ -272,7 +272,7 @@ public class UserPostFragment extends Fragment {
         });
     }
 
-    protected void loadNextDataFromApi(int page, final int totalItemsCount) {
+    private void loadNextDataFromApi(int page, final int totalItemsCount) {
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post
         query.include(Post.KEY_USER);
@@ -297,7 +297,7 @@ public class UserPostFragment extends Fragment {
 
     }
 
-    protected void queryPosts() {
+    private void queryPosts() {
         // Specify which class to query
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         // also want the user info associated w/ the post

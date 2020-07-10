@@ -10,6 +10,7 @@ import com.parse.ParseUser;
 
 import java.util.List;
 
+// No longer actually used
 public class ProfileFragment extends PostFragment {
 
     @Override

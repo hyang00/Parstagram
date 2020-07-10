@@ -67,7 +67,7 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
         notifyDataSetChanged();
     }
 
-    // Add a list of items -- change to type used
+    // Add a single item to the list
     public void addAll(int index, List<Post> list) {
         posts.addAll(index, list);
         notifyItemInserted(index);
@@ -146,7 +146,6 @@ public class PostsAdapter extends RecyclerView.Adapter<PostsAdapter.ViewHolder> 
                 Intent intent = new Intent(context, PostDetailActivity.class);
                 // serialize the movie using parceler, use its short name as a key
                 intent.putExtra(Post.class.getSimpleName(), Parcels.wrap(post));
-                ///intent.putExtra(Tweet.class.getSimpleName(), Parcels.wrap(tweet));
                 // show the activity
                 context.startActivity(intent);
             }
