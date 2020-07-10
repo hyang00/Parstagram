@@ -125,7 +125,7 @@ public class PostDetailActivity extends AppCompatActivity {
     }
 
     private void postComment(String description) {
-        Comment comment= new Comment();
+        final Comment comment= new Comment();
         comment.setDescription(description);
         comment.setUser(ParseUser.getCurrentUser());
         comment.setPost(post);
@@ -140,7 +140,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
                 // clear out editText and imageView after posting
                 etComment.setText("");
+                // closes keyboard when send clicked
+                etComment.setEnabled(false);
+                etComment.setEnabled(true);
+                allComments.add(0, comment);
+                adapter.notifyItemChanged(0);
             }
         });
+
     }
 }
