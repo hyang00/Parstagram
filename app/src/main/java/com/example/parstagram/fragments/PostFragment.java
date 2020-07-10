@@ -16,7 +16,7 @@ import android.view.ViewGroup;
 
 import com.example.parstagram.EndlessRecyclerViewScrollListener;
 import com.example.parstagram.models.Post;
-import com.example.parstagram.PostsAdapter;
+import com.example.parstagram.adapters.PostsAdapter;
 import com.example.parstagram.R;
 import com.parse.FindCallback;
 import com.parse.ParseException;

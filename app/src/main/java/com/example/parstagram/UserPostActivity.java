@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.parstagram.adapters.UserPostsAdapter;
 import com.example.parstagram.models.Post;
 import com.parse.FindCallback;
 import com.parse.ParseException;

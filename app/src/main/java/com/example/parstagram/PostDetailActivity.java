@@ -1,6 +1,8 @@
 package com.example.parstagram;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -14,15 +16,22 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.example.parstagram.adapters.CommentsAdapter;
+import com.example.parstagram.adapters.PostsAdapter;
 import com.example.parstagram.models.Comment;
 import com.example.parstagram.models.Post;
+import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import org.parceler.Parcels;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class PostDetailActivity extends AppCompatActivity {
 
@@ -36,6 +45,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private ImageView ivUserProfilePic;
     private ImageView ivSend;
     private EditText etComment;
+    private RecyclerView rvComments;
+    protected CommentsAdapter adapter;
+    protected List<Comment> allComments;
     private Post post;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,6 +61,12 @@ public class PostDetailActivity extends AppCompatActivity {
         ivUserProfilePic = findViewById(R.id.ivUserProfilePic);
         ivSend = findViewById(R.id.ivSend);
         etComment = findViewById(R.id.etComment);
+        rvComments = findViewById(R.id.rvComments);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+        allComments = new ArrayList<>();
+        adapter = new CommentsAdapter(this, allComments);
+        rvComments.setAdapter(adapter);
+        rvComments.setLayoutManager(linearLayoutManager);
         post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
 
         tvUsername.setText(post.getUser().getUsername());
@@ -74,6 +92,34 @@ public class PostDetailActivity extends AppCompatActivity {
                 Log.i(TAG, "send clicked");
                 String description = etComment.getText().toString();
                 postComment(description);
+            }
+        });
+
+        queryComments();
+    }
+
+    private void queryComments() {
+        // Specify which class to query
+        ParseQuery<Comment> query = ParseQuery.getQuery(Comment.class);
+        // also want the user info associated w/ the post
+        query.include(Comment.KEY_USER);
+        query.include(Comment.KEY_POST);
+        query.include(Comment.KEY_DESCRIPTION);
+        query.whereEqualTo(Comment.KEY_POST, post);
+        query.setLimit(20);
+        query.addDescendingOrder(Comment.KEY_CREATED_KEY);
+        query.findInBackground(new FindCallback<Comment>() {
+            @Override
+            public void done(List<Comment> comments, ParseException e) {
+                if(e != null){
+                    Log.e(TAG, "Issue w/ getting comments", e);
+                }
+                for (Comment comment : comments) {
+                    Log.i(TAG, "Comment: " + comment.getDescription());
+                }
+                adapter.clear();
+                adapter.addAll(comments);
+                adapter.notifyDataSetChanged();
             }
         });
     }

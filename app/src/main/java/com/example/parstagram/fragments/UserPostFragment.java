@@ -26,7 +26,7 @@ import com.example.parstagram.EndlessRecyclerViewScrollListener;
 import com.example.parstagram.LoginActivity;
 import com.example.parstagram.models.Post;
 import com.example.parstagram.R;
-import com.example.parstagram.UserPostsAdapter;
+import com.example.parstagram.adapters.UserPostsAdapter;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
