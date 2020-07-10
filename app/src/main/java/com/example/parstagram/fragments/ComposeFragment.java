@@ -3,7 +3,9 @@ package com.example.parstagram.fragments;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -44,8 +46,10 @@ import static android.app.Activity.RESULT_OK;
 public class  ComposeFragment extends Fragment {
     public static final String TAG = "Compose Fragment";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
+    public final static int PICK_PHOTO_CODE = 1046;
     private EditText etDescription;
     private Button btnCaptureImage;
+    private Button btnGalleryImage;
     private ImageView ivPostImage;
     private Button btnSubmit;
     private File photoFile;
@@ -73,6 +77,7 @@ public class  ComposeFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         etDescription = view.findViewById(R.id.etDescription);
         btnCaptureImage = view.findViewById(R.id.btnCaptureImage);
+        btnGalleryImage = view.findViewById(R.id.btnGalleryImage);
         ivPostImage = view.findViewById(R.id.ivPostImage);
         btnSubmit = view.findViewById(R.id.btnSubmit);
         pb = view.findViewById(R.id.pbLoading);
@@ -83,7 +88,14 @@ public class  ComposeFragment extends Fragment {
                 launchCamera();
             }
         });
-        //queryPosts();
+
+        btnGalleryImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickPhoto(view);
+            }
+        });
+
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,6 +112,36 @@ public class  ComposeFragment extends Fragment {
                 savePost(description, currentUser, photoFile);
             }
         });
+    }
+    // Trigger gallery selection for a photo
+    private void pickPhoto(View view) {
+        // Create intent for picking a photo from the gallery
+        Intent intent = new Intent(Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+        // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
+        // So as long as the result is not null, it's safe to use the intent.
+        if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+            // Bring up gallery to select a photo
+            startActivityForResult(intent, PICK_PHOTO_CODE);
+        }
+    }
+    public Bitmap loadFromUri(Uri photoUri) {
+        Bitmap image = null;
+        try {
+            // check version of Android on device
+            if(Build.VERSION.SDK_INT > 27){
+                // on newer versions of Android, use the new decodeBitmap method
+                ImageDecoder.Source source = ImageDecoder.createSource(getContext().getContentResolver(), photoUri);
+                image = ImageDecoder.decodeBitmap(source);
+            } else {
+                // support older versions of Android by using getBitmap
+                image = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), photoUri);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return image;
     }
 
     private void launchCamera() {
@@ -138,6 +180,16 @@ public class  ComposeFragment extends Fragment {
             } else { // Result was a failure
                 Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
+        }
+        if ((data != null) && requestCode == PICK_PHOTO_CODE) {
+            Uri photoUri = data.getData();
+            // Load the image located at photoUri into selectedImage
+            Bitmap selectedImage = loadFromUri(photoUri);
+            //selectedImage = BitmapScaler.scaleToFitWidth(selectedImage, 300);
+            // Load the selected image into a preview
+            ivPostImage.setImageBitmap(selectedImage);
+            //getResizedPhoto();
+            photoFile = new File(photoUri.getPath());
         }
     }
 
@@ -188,9 +240,40 @@ public class  ComposeFragment extends Fragment {
         return new File(mediaStorageDir.getPath() + File.separator + photoFileName);
     }
 
-    private void savePost(String description, ParseUser currentUser, File photoFile) {
-        Post post = new Post();
+    private void savePost(String description, final ParseUser currentUser, final File photoFile) {
+        final Post post = new Post();
         post.setDescription(description);
+//        ParseFile myFile = new ParseFile(photoFile);
+//        myFile.saveInBackground(new SaveCallback() {
+//            @Override
+//            public void done(ParseException e) {
+//                if (e != null) {
+//                    Log.e(TAG, "Error while saving file", e);
+//                    Toast.makeText(getContext(), "Error while saving file", Toast.LENGTH_SHORT).show();
+//                }
+//                if(null == e) {
+//                    post.setImage(new ParseFile(photoFile));
+//                    post.setUser(currentUser);
+//                    pb.setVisibility(ProgressBar.VISIBLE);
+//                    post.saveInBackground(new SaveCallback() {
+//                        // on some click or some loading we need to wait for...
+//                        @Override
+//                        public void done(ParseException e) {
+//                            if (e != null) {
+//                                Log.e(TAG, "Error while saving", e);
+//                                Toast.makeText(getContext(), "Error while saving", Toast.LENGTH_SHORT).show();
+//                            }
+//                            Log.i(TAG, "Post save was successful");
+//                            pb.setVisibility(ProgressBar.INVISIBLE);
+//                            // clear out editText and imageView after posting
+//                            etDescription.setText("");
+//                            ivPostImage.setImageResource(0);
+//                        }
+//                    });
+//                }
+//                Log.i(TAG, "here");
+//            }
+//        });
         post.setImage(new ParseFile(photoFile));
         post.setUser(currentUser);
         pb.setVisibility(ProgressBar.VISIBLE);

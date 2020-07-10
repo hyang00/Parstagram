@@ -28,11 +28,14 @@ public class UserPostActivity extends AppCompatActivity {
 
     final FragmentManager fragmentManager = getSupportFragmentManager();
 
+    private Post post;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_post);
-        Fragment fragment = UserPostFragment.newInstance(ParseUser.getCurrentUser(), false);
+        post = (Post) Parcels.unwrap(getIntent().getParcelableExtra(Post.class.getSimpleName()));
+        Fragment fragment = UserPostFragment.newInstance(post.getUser(), false);
         fragmentManager.beginTransaction().replace(R.id.rlUserPost, fragment).commit();
     }
 }
