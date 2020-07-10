@@ -152,7 +152,7 @@ public class UserPostFragment extends Fragment {
         });
         //((AppCompatActivity) getActivity()).setActionBar(toolbar);
         //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        GridLayoutManager linearLayoutManager = new GridLayoutManager(getContext(), 3 );
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3 );
         // create the data source
         allPosts = new ArrayList<>();
         // create the adapter
@@ -180,8 +180,8 @@ public class UserPostFragment extends Fragment {
         // set the adapter on the recycler view
         rvPosts.setAdapter(adapter);
         // set the layout manager on the recycler view
-        rvPosts.setLayoutManager(linearLayoutManager);
-        scrollListener = new EndlessRecyclerViewScrollListener(linearLayoutManager) {
+        rvPosts.setLayoutManager(gridLayoutManager);
+        scrollListener = new EndlessRecyclerViewScrollListener(gridLayoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 loadNextDataFromApi(page, totalItemsCount);
@@ -232,50 +232,61 @@ public class UserPostFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                // by this point we have the camera photo on disk
-                Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-                // RESIZE BITMAP, see section below
-                Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 50);
-                // Load the taken image into a preview
-                //ivProfile.setImageBitmap(takenImage);
-                // Configure byte output stream
-                ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                // Compress the image further
-                resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 40, bytes);
-                // Create a new file for the resized bitmap (`getPhotoFileUri` defined above)
-                final File resizedFile = getPhotoFileUri(photoFileName + "_resized");
-                FileOutputStream fos = null;
-                try {
-                    fos = new FileOutputStream(resizedFile);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                // Write the bytes of the bitmap to file
-                try {
-                    resizedFile.createNewFile();
-                    fos = new FileOutputStream(resizedFile);
-                    fos.write(bytes.toByteArray());
-                    fos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                user.put("profileImage", new ParseFile(resizedFile) );
-                user.saveInBackground(new SaveCallback() {
-                    // on some click or some loading we need to wait for...
-                    @Override
-                    public void done(ParseException e) {
-                        if (e != null) {
-                            Log.e(TAG, "Error while saving", e);
-                            Toast.makeText(getContext(), "Error while saving", Toast.LENGTH_SHORT).show();
-                        }
-                        Log.i(TAG, "Post save was successful");
-                        Glide.with(getContext()).load(resizedFile).transform(new CircleCrop()).into(ivProfile);
-                    }
-                });
+                final File resizedFile = getResizedPhoto();
+                saveProfileImage(resizedFile);
             } else { // Result was a failure
                 Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    private File getResizedPhoto(){
+        // by this point we have the camera photo on disk
+        Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+        // RESIZE BITMAP, see section below
+        Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
+        // Load the taken image into a preview
+        //ivProfile.setImageBitmap(takenImage);
+        // Configure byte output stream
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        // Compress the image further
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        // Create a new file for the resized bitmap (`getPhotoFileUri` defined above)
+        final File resizedFile = getPhotoFileUri(photoFileName + "_resized");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(resizedFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        // Write the bytes of the bitmap to file
+        try {
+            resizedFile.createNewFile();
+            fos = new FileOutputStream(resizedFile);
+            fos.write(bytes.toByteArray());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return resizedFile;
+    }
+
+    private void saveProfileImage(final File file){
+        user.put("profileImage", new ParseFile(file) );
+        user.saveInBackground(new SaveCallback() {
+            // on some click or some loading we need to wait for...
+            @Override
+            public void done(ParseException e) {
+                if (e != null) {
+                    Log.e(TAG, "Error while saving", e);
+                    Toast.makeText(getContext(), "Error while saving", Toast.LENGTH_SHORT).show();
+                }
+                Log.i(TAG, "Post save was successful");
+                ParseFile imageProfile = user.getParseFile("profileImage");
+                if(imageProfile != null){
+                    Glide.with(getContext()).load(imageProfile.getUrl()).transform(new CircleCrop()).into(ivProfile);
+                }
+            }
+        });
     }
 
     protected void loadNextDataFromApi(int page, final int totalItemsCount) {
@@ -302,11 +313,6 @@ public class UserPostFragment extends Fragment {
         });
 
     }
-
-//    @Override
-//    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-//        inflater.
-//    }
 
     protected void queryPosts() {
         // Specify which class to query

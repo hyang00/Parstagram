@@ -23,6 +23,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.parstagram.BitmapScaler;
 import com.example.parstagram.models.Post;
 import com.example.parstagram.R;
 import com.parse.ParseException;
@@ -30,17 +31,16 @@ import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 //import static androidx.media.MediaBrowserServiceCompat.RESULT_OK;
 
 import static android.app.Activity.RESULT_OK;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ComposeFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class  ComposeFragment extends Fragment {
     public static final String TAG = "Compose Fragment";
     public static final int CAPTURE_IMAGE_ACTIVITY_REQUEST_CODE = 42;
@@ -52,44 +52,10 @@ public class  ComposeFragment extends Fragment {
     private String photoFileName = "photo.jpg";
     private ProgressBar pb;
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ComposeFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ComposeFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ComposeFragment newInstance(String param1, String param2) {
-        ComposeFragment fragment = new ComposeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     // The onCreateView method is called when Fragment should create its View object hierarchy,
@@ -163,13 +129,47 @@ public class  ComposeFragment extends Fragment {
             if (resultCode == RESULT_OK) {
                 // by this point we have the camera photo on disk
                 Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+
                 // TODO: RESIZE BITMAP, see section below
+                //Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 300);
+                //photoFile = getResizedPhoto();
                 // Load the taken image into a preview
                 ivPostImage.setImageBitmap(takenImage);
             } else { // Result was a failure
                 Toast.makeText(getContext(), "Picture wasn't taken!", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+
+    private void getResizedPhoto(){
+        // by this point we have the camera photo on disk
+        Bitmap takenImage = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
+        // RESIZE BITMAP, see section below
+        Bitmap resizedBitmap = BitmapScaler.scaleToFitWidth(takenImage, 200);
+        // Load the taken image into a preview
+        //ivProfile.setImageBitmap(takenImage);
+        // Configure byte output stream
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        // Compress the image further
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 200, bytes);
+        // Create a new file for the resized bitmap (`getPhotoFileUri` defined above)
+        final File resizedFile = getPhotoFileUri(photoFileName + "_resized");
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(resizedFile);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        // Write the bytes of the bitmap to file
+        try {
+            resizedFile.createNewFile();
+            fos = new FileOutputStream(resizedFile);
+            fos.write(bytes.toByteArray());
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        photoFile = resizedFile;
     }
 
     //returns the file for a photo stored on disk given the fileName
