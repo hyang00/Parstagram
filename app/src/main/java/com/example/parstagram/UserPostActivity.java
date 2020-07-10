@@ -32,7 +32,7 @@ public class UserPostActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_post);
-        Fragment fragment = UserPostFragment.newInstance(ParseUser.getCurrentUser());
+        Fragment fragment = UserPostFragment.newInstance(ParseUser.getCurrentUser(), false);
         fragmentManager.beginTransaction().replace(R.id.rlUserPost, fragment).commit();
     }
 }

@@ -66,8 +66,7 @@ public class MainActivity extends AppCompatActivity {
                         // do something here
                         break;
                     case R.id.action_profile:
-                        // TODO: make profile fragment
-                        fragment = UserPostFragment.newInstance(ParseUser.getCurrentUser());
+                        fragment = UserPostFragment.newInstance(ParseUser.getCurrentUser(), true);
                         break;
                     default:
                         fragment = new PostFragment();

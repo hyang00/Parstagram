@@ -33,6 +33,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.parstagram.BitmapScaler;
 import com.example.parstagram.EndlessRecyclerViewScrollListener;
 import com.example.parstagram.LoginActivity;
+import com.example.parstagram.MainActivity;
 import com.example.parstagram.models.Post;
 import com.example.parstagram.R;
 import com.example.parstagram.adapters.UserPostsAdapter;
@@ -74,13 +75,11 @@ public class UserPostFragment extends Fragment {
     private TextView tvBio;
     private ImageView ivProfile;
     private Toolbar toolbar;
-    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "user";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
+    private static final String ARG_USER = "user";
+    private static final String ARG_ADD_MENU = "addMenu";
     private ParseUser user;
+    private boolean addMenu;
 
     public UserPostFragment() {
         // Required empty public constructor
@@ -93,11 +92,11 @@ public class UserPostFragment extends Fragment {
      * @param user Parameter 1.
      * @return A new instance of fragment UserPostFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static UserPostFragment newInstance(ParseUser user) {
+    public static UserPostFragment newInstance(ParseUser user, boolean addMenu) {
         UserPostFragment fragment = new UserPostFragment();
         Bundle args = new Bundle();
-        args.putParcelable(ARG_PARAM1, user);
+        args.putParcelable(ARG_USER, user);
+        args.putBoolean(ARG_ADD_MENU, addMenu);
         fragment.setArguments(args);
         return fragment;
     }
@@ -106,8 +105,8 @@ public class UserPostFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            user = getArguments().getParcelable(ARG_PARAM1);
-            //mParam1 = getArguments().getString(ARG_PARAM1);
+            user = getArguments().getParcelable(ARG_USER);
+            addMenu = getArguments().getBoolean(ARG_ADD_MENU);
         }
     }
 
@@ -125,57 +124,40 @@ public class UserPostFragment extends Fragment {
         tvName = view.findViewById(R.id.tvName);
         tvBio = view.findViewById(R.id.tvBio);
         ivProfile = view.findViewById(R.id.ivProfile);
+        toolbar = (Toolbar) view.findViewById(R.id.toolBar);
+
         tvName.setText(user.getUsername());
         ParseFile imageProfile = user.getParseFile("profileImage");
         if(imageProfile != null){
             Glide.with(getContext()).load(imageProfile.getUrl()).transform(new CircleCrop()).into(ivProfile);
         }
-        toolbar = (Toolbar) view.findViewById(R.id.toolBar);
-        toolbar.inflateMenu(R.menu.menu_user_profile);
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem menuItem) {
-                switch (menuItem.getItemId()) {
-                    case R.id.miLogout:
-                        ParseUser.logOut();
-                        ParseUser currentUser = ParseUser.getCurrentUser();
-                        Intent intent = new Intent(getContext(), LoginActivity.class);
-                        getContext().startActivity(intent);
-                        break;
-                    case R.id.miEditProfilePic:
-                        onLaunchCamera(view);
-                    default:
-                        break;
+        // only allow options to logout/edit profile pic if user clicks on the profile tab
+        if (addMenu){
+            toolbar.inflateMenu(R.menu.menu_user_profile);
+            toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+                @Override
+                public boolean onMenuItemClick(MenuItem menuItem) {
+                    switch (menuItem.getItemId()) {
+                        case R.id.miLogout:
+                            ParseUser.logOut();
+                            ParseUser currentUser = ParseUser.getCurrentUser();
+                            Intent intent = new Intent(getContext(), LoginActivity.class);
+                            getContext().startActivity(intent);
+                            break;
+                        case R.id.miEditProfilePic:
+                            onLaunchCamera(view);
+                        default:
+                            break;
+                    }
+                    return true;
                 }
-                return true;
-            }
-        });
-        //((AppCompatActivity) getActivity()).setActionBar(toolbar);
-        //LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+            });
+        }
         GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3 );
         // create the data source
         allPosts = new ArrayList<>();
         // create the adapter
         adapter = new UserPostsAdapter(getContext(), allPosts);
-
-//        // Lookup the swipe container view
-//        swipeContainer = (SwipeRefreshLayout) view.findViewById(R.id.swipeContainer);
-//        // Setup refresh listener which triggers new data loading
-//        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                // Your code to refresh the list here.
-//                // Make sure you call swipeContainer.setRefreshing(false)
-//                // once the network request has completed successfully.
-//                //Todo: check if this is correct
-//                queryPosts();
-//            }
-//        });
-//        // Configure the refreshing colors
-//        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
-//                android.R.color.holo_green_light,
-//                android.R.color.holo_orange_light,
-//                android.R.color.holo_red_light);
 
         // set the adapter on the recycler view
         rvPosts.setAdapter(adapter);
@@ -190,6 +172,7 @@ public class UserPostFragment extends Fragment {
         rvPosts.addOnScrollListener(scrollListener);
         queryPosts();
     }
+
 
     private void onLaunchCamera(View view) {
         // create Intent to take a picture and return control to the calling application
